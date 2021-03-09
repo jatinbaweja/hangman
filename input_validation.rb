@@ -1,5 +1,5 @@
 class InputValidation
-	attr_accessor :message
+	attr_reader :message
 	def initialize(message, &validator)
 		@message = message
 		@validator = validator

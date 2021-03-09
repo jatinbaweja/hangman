@@ -8,6 +8,7 @@ class Hangman
 	WORD_SET = ['stare', 'annoyed', 'cats', 'paddle', 'symptomatic', 'road', 'icicle', 'surround', 'reading', 'comparison', 'transport', 'yummy', 'tax', 'paint', 'abounding', 'bathe', 'guess', 'worthless', 'white', 'clover', 'health', 'short', 'profit', 'reminiscent', 'homeless', 'painful', 'distribution', 'produce', 'optimal', 'violet', 'angry', 'likeable', 'itch', 'color', 'existence', 'provide', 'certain', 'living', 'property', 'ubiquitous', 'stamp', 'abject', 'tiger', 'top', 'blot', 'flowery', 'unsuitable', 'bed', 'pedal', 'soup']
 	# Define input range for characters
 	INPUT_RANGE = 'A'..'Z'
+	attr_reader :won
 
 	def initialize
 		@incorrect_attempts = 0
@@ -15,12 +16,13 @@ class Hangman
 		@guess_word_progress = Array.new(@word.length, false)
 		@hangman_view = HangmanView.new
 		@gameplay = true
+		@won = false
 		@guessed_letters = []
 		define_input_validations
 	end
 
 	def play
-		while(@gameplay == true)
+		while(@gameplay)
 			puts @hangman_view.output(@incorrect_attempts, @word, @guess_word_progress, @output_hint, @guessed_letters)
 			input = gets.chomp.upcase
 			valid = validate_input(input)
@@ -58,13 +60,14 @@ class Hangman
 			end
 		end
 		check_if_won(letter_present)
-		check_if_lost if @gameplay != false
+		check_if_lost if @gameplay
 	end
 
 	def check_if_won(letter_present)
 		if letter_present
 			if @guess_word_progress.all? { |letter_progress|  letter_progress }
 				@gameplay = false
+				@won = true
 				@output_hint = <<~WIN_MESSAGE
 					#{WIN_OUTPUT}
 				WIN_MESSAGE
@@ -77,6 +80,7 @@ class Hangman
 	def check_if_lost
 		if @incorrect_attempts == MAX_INCORRECT_ATTEMPTS
 			@gameplay = false
+			@won = false
 			@output_hint = <<~LOSE_MESSAGE
 				#{LOST_OUTPUT}
 				The word was #{@word.upcase}
@@ -86,15 +90,24 @@ class Hangman
 end
 
 class HangmanGameplay
+	def initialize
+		@score = { win: 0, loss: 0 }
+	end
+
 	def start
 		loop do
 			hangman = Hangman.new
 			hangman.play
+			hangman.won ? @score[:win] += 1 : @score[:loss] += 1
 			puts "Press ENTER to continue or q to quit: "
 			play_input = gets.chomp.downcase
 			break if play_input == 'q'
 		end
-		puts "Thank you for playing Hangman"
+		puts <<~FINAL_OUT
+			Thank you for playing Hangman. Your score is:
+			Wins: #{@score[:win]}
+			Losses: #{@score[:loss]}
+		FINAL_OUT
 	end
 end
 
