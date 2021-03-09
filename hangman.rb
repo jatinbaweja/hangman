@@ -1,4 +1,5 @@
 require_relative './hangman_view'
+require_relative './input_validation'
 
 class Hangman
 	# Define it based on the number of attempts possible to complete the hangman figure
@@ -15,6 +16,7 @@ class Hangman
 		@hangman_view = HangmanView.new
 		@gameplay = true
 		@guessed_letters = []
+		define_input_validations
 	end
 
 	def play
@@ -29,18 +31,18 @@ class Hangman
 
 	private
 
+	def define_input_validations
+		@input_validations = []
+		@input_validations.push(InputValidation.new("Please enter single character only") { |input| input.length == 1 })
+		@input_validations.push(InputValidation.new("Input should be part of range #{INPUT_RANGE.min}-#{INPUT_RANGE.max}") { |input| INPUT_RANGE.include?(input) })
+		@input_validations.push(InputValidation.new("Cannot guess same letter again") { |input| !@guessed_letters.include?(input) })
+	end
+
 	def validate_input(input)
 		@output_hint = ""
-		if input.length != 1
-			@output_hint = "Please enter single character only"
-			return false
-		end
-		if !INPUT_RANGE.include?(input)
-			@output_hint = "Input should be part of range #{INPUT_RANGE.min}-#{INPUT_RANGE.max}"
-			return false
-		end
-		if @guessed_letters.include?(input)
-			@output_hint = "Cannot guess same letter again"
+		failed_validation = @input_validations.find { |validation| !validation.valid?(input) }
+		if failed_validation
+			@output_hint = failed_validation.message
 			return false
 		end
 		return true
