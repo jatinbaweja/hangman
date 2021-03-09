@@ -65,7 +65,6 @@ class Hangman
 				@gameplay = false
 				@output_hint = <<~WIN_MESSAGE
 					#{WIN_OUTPUT}
-					Thank you for playing Hangman. The word was #{@word.upcase}
 				WIN_MESSAGE
 			end
 		else
@@ -78,11 +77,24 @@ class Hangman
 			@gameplay = false
 			@output_hint = <<~LOSE_MESSAGE
 				#{LOST_OUTPUT}
-				Thank you for playing Hangman. The word was #{@word.upcase}
+				The word was #{@word.upcase}
 			LOSE_MESSAGE
 		end
 	end
 end
 
-hg = Hangman.new
-hg.play
+class HangmanGameplay
+	def start
+		loop do
+			hangman = Hangman.new
+			hangman.play
+			puts "Press ENTER to continue or q to quit: "
+			play_input = gets.chomp.downcase
+			break if play_input == 'q'
+		end
+		puts "Thank you for playing Hangman"
+	end
+end
+
+gameplay = HangmanGameplay.new
+gameplay.start
