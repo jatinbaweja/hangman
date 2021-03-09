@@ -24,7 +24,7 @@ class Hangman
 			valid = validate_input(input)
 			evaluate_attempt(input) if valid
 		end
-		puts @output_hint
+		puts @hangman_view.final_output(@incorrect_attempts, @word, @guess_word_progress, @output_hint, @guessed_letters)
 	end
 
 	private
@@ -63,7 +63,10 @@ class Hangman
 		if letter_present
 			if @guess_word_progress.all? { |letter_progress|  letter_progress }
 				@gameplay = false
-				@output_hint = "You Won. Thank you for playing Hangman. The word was #{@word.upcase}"
+				@output_hint = <<~WIN_MESSAGE
+					#{WIN_OUTPUT}
+					Thank you for playing Hangman. The word was #{@word.upcase}
+				WIN_MESSAGE
 			end
 		else
 			@incorrect_attempts += 1
@@ -73,7 +76,10 @@ class Hangman
 	def check_if_lost
 		if @incorrect_attempts == MAX_INCORRECT_ATTEMPTS
 			@gameplay = false
-			@output_hint = "You lost. Thank you for playing Hangman. The word was #{@word.upcase}"
+			@output_hint = <<~LOSE_MESSAGE
+				#{LOST_OUTPUT}
+				Thank you for playing Hangman. The word was #{@word.upcase}
+			LOSE_MESSAGE
 		end
 	end
 end

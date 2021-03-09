@@ -80,19 +80,47 @@ OUTPUTS = {
   HANG6
 }
 
+WIN_OUTPUT = <<~WIN
+  ***************
+  *   YOU WON   *
+  ***************
+WIN
+
+LOST_OUTPUT = <<~LOSE
+  ----------------
+  |   YOU LOST   |
+  ----------------
+LOSE
+
+
 class HangmanView
+  def final_output(incorrect_attempts, word, word_progress, output_hint, guessed_letters)
+    system "clear"
+    <<~OUT
+      #{output_hint}
+      #{common_output(incorrect_attempts, word, word_progress, guessed_letters)}
+    OUT
+  end
+
   def output(incorrect_attempts, word, word_progress, output_hint, guessed_letters)
+    system "clear"
     <<~OUT
       #{TITLE_TEXT}
-      #{OUTPUTS.fetch(incorrect_attempts, OUTPUTS[0])}
-      #{word_output(word, word_progress)}
-      #{misses(guessed_letters, word)}
+      #{common_output(incorrect_attempts, word, word_progress, guessed_letters)}
       #{output_hint}
       #{INPUT_TEXT}
     OUT
   end
 
   private
+
+  def common_output(incorrect_attempts, word, word_progress, guessed_letters)
+    <<~COMMON_OUTPUT
+      #{OUTPUTS.fetch(incorrect_attempts, OUTPUTS[0])}
+      #{word_output(word, word_progress)}
+      #{misses(guessed_letters, word)}
+    COMMON_OUTPUT
+  end
 
   def word_output(word, word_progress)
     out = ""
