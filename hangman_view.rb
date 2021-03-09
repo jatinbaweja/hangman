@@ -95,7 +95,7 @@ LOSE
 
 class HangmanView
   def final_output(incorrect_attempts, word, word_progress, output_hint, guessed_letters)
-    system "clear"
+    clear_screen
     <<~OUT
       #{output_hint}
       #{common_output(incorrect_attempts, word, word_progress, guessed_letters)}
@@ -103,7 +103,7 @@ class HangmanView
   end
 
   def output(incorrect_attempts, word, word_progress, output_hint, guessed_letters)
-    system "clear"
+    clear_screen
     <<~OUT
       #{TITLE_TEXT}
       #{common_output(incorrect_attempts, word, word_progress, guessed_letters)}
@@ -113,6 +113,10 @@ class HangmanView
   end
 
   private
+
+  def clear_screen
+    Gem.win_platform? ? (system "cls") : (system "clear")
+  end
 
   def common_output(incorrect_attempts, word, word_progress, guessed_letters)
     <<~COMMON_OUTPUT
