@@ -81,11 +81,12 @@ OUTPUTS = {
 }
 
 class HangmanView
-  def output(incorrect_attempts, word, word_progress)
+  def output(incorrect_attempts, word, word_progress, output_hint)
     <<~OUT
       #{TITLE_TEXT}
       #{OUTPUTS.fetch(incorrect_attempts, OUTPUTS[0])}
       #{word_output(word, word_progress)}
+      #{output_hint}
       #{INPUT_TEXT}
     OUT
   end

@@ -5,6 +5,8 @@ class Hangman
 	MAX_INCORRECT_ATTEMPTS = 6
 	# Define a set of constant words for the MVP
 	WORD_SET = ['stare', 'annoyed', 'cats', 'paddle', 'symptomatic', 'road', 'icicle', 'surround', 'reading', 'comparison', 'transport', 'yummy', 'tax', 'paint', 'abounding', 'bathe', 'guess', 'worthless', 'white', 'clover', 'health', 'short', 'profit', 'reminiscent', 'homeless', 'painful', 'distribution', 'produce', 'optimal', 'violet', 'angry', 'likeable', 'itch', 'color', 'existence', 'provide', 'certain', 'living', 'property', 'ubiquitous', 'stamp', 'abject', 'tiger', 'top', 'blot', 'flowery', 'unsuitable', 'bed', 'pedal', 'soup']
+	# Define input range for characters
+	INPUT_RANGE = 'A'..'Z'
 
 	def initialize
 		@incorrect_attempts = 0
@@ -16,14 +18,28 @@ class Hangman
 
 	def play
 		while(@gameplay == true)
-			puts @hangman_view.output(@incorrect_attempts, @word, @guess_word_progress)
+			puts @hangman_view.output(@incorrect_attempts, @word, @guess_word_progress, @output_hint)
 			input = gets.chomp.upcase
-			evaluate_attempt(input)
+			valid = validate_input(input)
+			evaluate_attempt(input) if valid
 		end
-		puts @final_output
+		puts @output_hint
 	end
 
 	private
+
+	def validate_input(input)
+		@output_hint = ""
+		if input.length != 1
+			@output_hint = "Please enter single character only"
+			return false
+		end
+		if !INPUT_RANGE.include?(input)
+			@output_hint = "Input should be part of range #{INPUT_RANGE.min}-#{INPUT_RANGE.max}"
+			return false
+		end
+		return true
+	end
 
 	def evaluate_attempt(input)
 		letter_present = false
@@ -41,7 +57,7 @@ class Hangman
 		if letter_present
 			if @guess_word_progress.all? { |letter_progress|  letter_progress }
 				@gameplay = false
-				@final_output = "You Won. Thank you for playing Hangman. The word was #{@word.upcase}"
+				@output_hint = "You Won. Thank you for playing Hangman. The word was #{@word.upcase}"
 			end
 		else
 			@incorrect_attempts += 1
@@ -51,7 +67,7 @@ class Hangman
 	def check_if_lost
 		if @incorrect_attempts == MAX_INCORRECT_ATTEMPTS
 			@gameplay = false
-			@final_output = "You lost. Thank you for playing Hangman. The word was #{@word.upcase}"
+			@output_hint = "You lost. Thank you for playing Hangman. The word was #{@word.upcase}"
 		end
 	end
 end
