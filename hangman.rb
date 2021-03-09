@@ -14,11 +14,12 @@ class Hangman
 		@guess_word_progress = Array.new(@word.length, false)
 		@hangman_view = HangmanView.new
 		@gameplay = true
+		@guessed_letters = []
 	end
 
 	def play
 		while(@gameplay == true)
-			puts @hangman_view.output(@incorrect_attempts, @word, @guess_word_progress, @output_hint)
+			puts @hangman_view.output(@incorrect_attempts, @word, @guess_word_progress, @output_hint, @guessed_letters)
 			input = gets.chomp.upcase
 			valid = validate_input(input)
 			evaluate_attempt(input) if valid
@@ -38,10 +39,15 @@ class Hangman
 			@output_hint = "Input should be part of range #{INPUT_RANGE.min}-#{INPUT_RANGE.max}"
 			return false
 		end
+		if @guessed_letters.include?(input)
+			@output_hint = "Cannot guess same letter again"
+			return false
+		end
 		return true
 	end
 
 	def evaluate_attempt(input)
+		@guessed_letters.push(input)
 		letter_present = false
 		@word.each_char.with_index do |letter, i|
 			if(letter == input)

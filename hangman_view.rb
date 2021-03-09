@@ -81,11 +81,12 @@ OUTPUTS = {
 }
 
 class HangmanView
-  def output(incorrect_attempts, word, word_progress, output_hint)
+  def output(incorrect_attempts, word, word_progress, output_hint, guessed_letters)
     <<~OUT
       #{TITLE_TEXT}
       #{OUTPUTS.fetch(incorrect_attempts, OUTPUTS[0])}
       #{word_output(word, word_progress)}
+      #{misses(guessed_letters, word)}
       #{output_hint}
       #{INPUT_TEXT}
     OUT
@@ -102,6 +103,11 @@ class HangmanView
         out += "_ "
       end
     end
+    return out
+  end
+
+  def misses(guessed_letters, word)
+    out = "Misses: #{(guessed_letters - word.chars).join(', ')}"
     return out
   end
 end
