@@ -1,5 +1,9 @@
 TITLE_TEXT = "Welcome to Hangman"
 INPUT_TEXT = "Enter your next guess: "
+# Moving these to dedicated template files could help clean up this file by not mixing
+# presentation logic concerns w/ the actual presentational components. Then for example
+# another engineer or designer could change the artwork without touching the same file
+# that handles win/loss display, etc.
 OUTPUTS = {
   0 => <<-HANG0,
     ____________
@@ -94,6 +98,15 @@ LOSE
 
 
 class HangmanView
+  # the next two methods could adhere more to the principle of DRY (Don't Repeat Yourself)
+  # Logically, they are the same except some extra output. 
+  #
+  # One thing to look out for is if a class has two methods that take the same exact
+  # parameters, there could be an opportunity for refactor.
+  #
+  # In this case, one could have an output method that queries game state from another
+  # type of object (see comment in Hangman class about separation of concerns) and
+  # `final_output` could call `output` with a flag that it's for the "final" output
   def final_output(incorrect_attempts, word, word_progress, output_hint, guessed_letters)
     clear_screen
     <<~OUT
@@ -135,10 +148,14 @@ class HangmanView
         out += "_ "
       end
     end
+    # return is redundant here
     return out
   end
 
   def misses(guessed_letters, word)
+    # assigning this string and returning shouldn't be needed; if you take away the
+    # temp assignment to `out` and just leave in the interpolated string, it will 
+    # be the return value for this method
     out = "Misses: #{(guessed_letters - word.chars).join(', ')}"
     return out
   end

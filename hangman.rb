@@ -1,16 +1,39 @@
+# Overall feedback:
+# 
+# This code gets the job done, but there are some areas where some patterns could be
+# showcased that show a stronger grasp of principles important to a growing and
+# shared codebase. I tried to add helpful feedback throughout the code as comments. 
+# 
+# Some examples of overall things that could be improved: separation of concerns, DRY,
+# consistency, composition, and convention over configuration.
+# 
+# Please see my comments throughout the three Ruby files and let me know if you have
+# any feedback or disagree with any of it. 
+# 
+# Thank you for the opportunity to get to know your code!
 require_relative './hangman_view'
 require_relative './input_validation'
 
+# Overall this class has a lot of concerns (validation, game state, initial setup / word choice, etc.)
+# It might be clearer to compose simple single-purpose objects and orchestrate them in order to perform
+# the core job - playing a game of Hangman. 
+# 
+# By separating the concerns, it also makes the code more testable and reusable. Each component can be
+# tested in isolation with unit tests, for example. There would also be less chance of side effects
+# through use of instance variables as store-of-state.
 class Hangman
 	# Define it based on the number of attempts possible to complete the hangman figure
 	MAX_INCORRECT_ATTEMPTS = 6
 	# Define a set of constant words for the MVP
+	# Could this be loaded from YAML / CSV / JSON? Or for extra modularity (and language support)
+	# it could read from the OS level system dictionary file (macOS, Linux, Windows should all have one)
 	WORD_SET = ['stare', 'annoyed', 'cats', 'paddle', 'symptomatic', 'road', 'icicle', 'surround', 'reading', 'comparison', 'transport', 'yummy', 'tax', 'paint', 'abounding', 'bathe', 'guess', 'worthless', 'white', 'clover', 'health', 'short', 'profit', 'reminiscent', 'homeless', 'painful', 'distribution', 'produce', 'optimal', 'violet', 'angry', 'likeable', 'itch', 'color', 'existence', 'provide', 'certain', 'living', 'property', 'ubiquitous', 'stamp', 'abject', 'tiger', 'top', 'blot', 'flowery', 'unsuitable', 'bed', 'pedal', 'soup']
 	# Define input range for characters
 	INPUT_RANGE = 'A'..'Z'
 	attr_reader :won
 
 	def initialize
+		# should always call super in intialize for future-proofing
 		@incorrect_attempts = 0
 		@word  = WORD_SET.sample.upcase
 		@guess_word_progress = Array.new(@word.length, false)
@@ -23,6 +46,10 @@ class Hangman
 
 	def play
 		while(@gameplay)
+			# this many parameters to the output method may be a code smell - perhaps there is a better way
+			# to inject state through a higher level representation like a Guess instance or represent the 
+			# player's progress through the game session with GameSession instance? Just some ideas to separate
+			# concerns...
 			puts @hangman_view.output(@incorrect_attempts, @word, @guess_word_progress, @output_hint, @guessed_letters)
 			input = gets.chomp.upcase
 			valid = validate_input(input)
@@ -35,6 +62,8 @@ class Hangman
 
 	def define_input_validations
 		@input_validations = []
+		# Might be better to have each validate be a class instead of using a generic class and 
+		# proc-ing in the logic. (Begs question of what point the class serves if it is acting simple as a method)
 		@input_validations.push(InputValidation.new("Please enter single character only") { |input| input.length == 1 })
 		@input_validations.push(InputValidation.new("Input should be part of range #{INPUT_RANGE.min}-#{INPUT_RANGE.max}") { |input| INPUT_RANGE.include?(input) })
 		@input_validations.push(InputValidation.new("Cannot guess same letter again") { |input| !@guessed_letters.include?(input) })
@@ -113,3 +142,8 @@ end
 
 gameplay = HangmanGameplay.new
 gameplay.start
+
+# Overall would be great if the code base employed a linter or .editorconfig
+# so there was more consistency in the code stylistic conventions. Makes it easier
+# to contribute and make PRs without having a lot of "diff clutter" due to different
+# conventions. Also makes the code cleaner.
